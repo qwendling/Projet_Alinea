@@ -40,3 +40,14 @@ Matrix Identite(int taille){
 				setElt(m,i,j,1.);
 	return m;
 }
+
+Matrix copyMatrix(const Matrix m){
+	Matrix cpy = newMatrix(m->nrows,m->ncol);
+   int j,i;
+   for(i=0;i<m->nrows;i++){
+     for(j=0;j<m->ncol;j++){
+       setElt(cpy,i,j,getElt(m,i,j));
+     }
+   }
+	return cpy;
+}

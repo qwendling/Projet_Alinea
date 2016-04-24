@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include "Matrix.h"
 
-Matrix addition(Matrix m,Matrix n);
-Matrix mult(Matrix m,Matrix n);
-Matrix transpose(Matrix m);
+Matrix addition(const Matrix m,const Matrix n);
+Matrix soustraction(const Matrix m,const Matrix n);
+Matrix mult(const Matrix m,const Matrix n);
+Matrix multScalaire(const Matrix m,E x);
+Matrix transpose(const Matrix m);
+Matrix expo(const Matrix m,int exposant);
 
 #endif
