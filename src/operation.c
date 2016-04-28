@@ -96,8 +96,8 @@ void combineLine(Matrix V,E c1,int l1,E c2,int l2){
 }
 
 Matrix triangle(const Matrix m){
-	Matrix D=copyMatrix(A);
-  int i,j,k,tmp;
+	Matrix D=copyMatrix(m);
+  int i,k,tmp;
   E pivot;
   for(k=0;k<(D->nrows-1);k++){
     tmp=k;
@@ -111,4 +111,18 @@ Matrix triangle(const Matrix m){
     }
   }
   return D;
+}
+
+int determinant(const Matrix m){
+	if(m->nrows != m->ncol){
+		fprintf(stderr,"La matrice n'est pas carré");
+		return 0;
+	}
+	Matrix D=triangle(m);
+	int i;
+	int deter=1;
+	for(i=0;i<m->nrows;i++){
+		deter*=getElt(D,i,i);
+	}
+	return deter;
 }
