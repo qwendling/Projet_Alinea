@@ -126,3 +126,31 @@ int determinant(const Matrix m){
 	}
 	return deter;
 }
+
+Matrix solve_gauss_simple(const Matrix A,const Matrix B){
+  Matrix X=newMatrix(B->nrows,B->ncol);
+  Matrix D=copyMatrix(A);
+	Matrix Bcpy=copyMatrix(B);
+  int i,j,k,tmp;
+  E pivot;
+  for(k=0;k<(D->nrows-1);k++){
+    tmp=k;
+    while((pivot=getElt(D,tmp,k))<0.0001){
+      tmp++;
+    }
+    swapLine(D,tmp,k);
+		swapLine(Bcpy,tmp,k);
+    for(i=k+1;i<D->nrows;i++){
+			combineLine(Bcpy,(-getElt(D,i,k)/pivot),k,1,i);
+      combineLine(D,(-getElt(D,i,k)/pivot),k,1,i);
+    }
+  }
+	for(i=D->nrows-1;i>=0;i--){
+		setElt(X,i,0,getElt(Bcpy,i,0));
+		for(j=i+1;j<(D->nrows);j++){
+			setElt(X,i,0,getElt(X,i,0)-getElt(D,i,j)*getElt(X,j,0));
+		}
+		setElt(X,i,0,getElt(X,i,0)/getElt(D,i,i));
+	}
+  return X;
+}
