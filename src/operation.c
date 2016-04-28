@@ -73,3 +73,42 @@ Matrix expo(const Matrix m,int exposant){
   }
   return ex;
 }
+
+void swapLine(Matrix V,int l1,int l2){
+  int j;
+  E tmp;
+	if(l1==l2)
+		return;
+  for(j=0;j<V->ncol;j++){
+    tmp=getElt(V,l1,j);
+    setElt(V,l1,j,getElt(V,l2,j));
+    setElt(V,l2,j,tmp);
+  }
+}
+
+void combineLine(Matrix V,E c1,int l1,E c2,int l2){
+  int j;
+  E tmp;
+  for(j=0;j<V->ncol;j++){
+    tmp=c1*getElt(V,l1,j);
+    setElt(V,l2,j,tmp+c2*getElt(V,l2,j));
+  }
+}
+
+Matrix triangle(const Matrix m){
+	Matrix D=copyMatrix(A);
+  int i,j,k,tmp;
+  E pivot;
+  for(k=0;k<(D->nrows-1);k++){
+    tmp=k;
+    while((pivot=getElt(D,tmp,k))<0.0001){
+      tmp++;
+    }
+    swapLine(D,tmp,k);
+		printf("%f\n",pivot);
+    for(i=k+1;i<D->nrows;i++){
+      combineLine(D,(-getElt(D,i,k)/pivot),k,1,i);
+    }
+  }
+  return D;
+}

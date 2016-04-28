@@ -11,5 +11,6 @@ Matrix mult(const Matrix m,const Matrix n);
 Matrix multScalaire(const Matrix m,E x);
 Matrix transpose(const Matrix m);
 Matrix expo(const Matrix m,int exposant);
+Matrix triangle(const Matrix m);
 
 #endif
