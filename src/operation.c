@@ -105,7 +105,6 @@ Matrix triangle(const Matrix m){
       tmp++;
     }
     swapLine(D,tmp,k);
-		printf("%f\n",pivot);
     for(i=k+1;i<D->nrows;i++){
       combineLine(D,(-getElt(D,i,k)/pivot),k,1,i);
     }
@@ -124,6 +123,7 @@ int determinant(const Matrix m){
 	for(i=0;i<m->nrows;i++){
 		deter*=getElt(D,i,i);
 	}
+	deleteMatrix(D);
 	return deter;
 }
 
@@ -152,5 +152,63 @@ Matrix solve_gauss_simple(const Matrix A,const Matrix B){
 		}
 		setElt(X,i,0,getElt(X,i,0)/getElt(D,i,i));
 	}
+	deleteMatrix(D);
+	deleteMatrix(Bcpy);
   return X;
+}
+
+Matrix inverse(const Matrix m){
+	if(m->nrows!=m->ncol){
+		fprintf(stderr,"La matrice n'est pas carré\n");
+		return NULL;
+	}
+	if(determinant(m)==0){
+		fprintf(stderr,"La matrice n'est pas inversible\n");
+		return NULL;
+	}
+	Matrix I=Identite(m->nrows);
+	Matrix A=copyMatrix(m);
+	int i,k,tmp;
+  E pivot;
+	for(k=0;k<(A->nrows-1);k++){
+    tmp=k;
+    while((pivot=getElt(A,tmp,k))<0.0001){
+      tmp++;
+    }
+    swapLine(A,tmp,k);
+		swapLine(I,tmp,k);
+    for(i=k+1;i<A->nrows;i++){
+			combineLine(I,(-getElt(A,i,k)/pivot),k,1,i);
+      combineLine(A,(-getElt(A,i,k)/pivot),k,1,i);
+    }
+  }
+	for(i=A->nrows-1;i>0;i--){
+		for(k=i-1;k>=0;k--){
+			combineLine(I,(-getElt(A,k,i)/getElt(A,i,i)),i,1,k);
+      combineLine(A,(-getElt(A,k,i)/getElt(A,i,i)),i,1,k);
+		}
+	}
+	for(i=0;i<A->nrows;i++){
+		combineLine(I,(1/getElt(A,i,i)),i,0,i);
+		combineLine(A,(1/getElt(A,i,i)),i,0,i);
+	}
+	deleteMatrix(A);
+	return I;
+}
+
+int rank(const Matrix m){
+	int r=m->nrows;
+	Matrix D=triangle(m);
+	int i,j;
+	for(i=0;i<m->nrows;i++){
+		for(j=0;j<=m->ncol;j++){
+			if(j==m->ncol){
+				r--;
+				break;
+			}
+			if(getElt(D,i,j)>0.00001)
+				break;
+		}
+	}
+	return r;
 }

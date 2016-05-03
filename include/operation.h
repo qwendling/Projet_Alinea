@@ -13,5 +13,7 @@ Matrix transpose(const Matrix m);
 Matrix expo(const Matrix m,int exposant);
 Matrix triangle(const Matrix m);
 int determinant(const Matrix m);
+Matrix inverse(const Matrix m);
+int rank(const Matrix m);
 
 #endif

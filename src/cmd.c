@@ -15,7 +15,13 @@ int main(){
   setElt(ex,2,2,9.);
   displayMatrix(Id);
   printf("\n");
+  displayMatrix(inverse(Id));
+  printf("\nex:\n");
   displayMatrix(ex);
+  printf("\ninverse de ex :\n");
+  displayMatrix(inverse(ex));
+  printf("\n");
+  printf("rang de ex : %d \n",rank(ex));
   tmp=mult(ex,ex2);
   printf("\n");
   displayMatrix(tmp);
