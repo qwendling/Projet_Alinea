@@ -118,7 +118,7 @@ void createVar(char *key,char *val,Variable tabVar[]){
     return;
   }
   tabVar[h]=adjVar(tabVar[h],atof(val),key);
-  printf("variable créé\n");
+  printf("variable créée\n");
 }
 
 void afficheVar(Variable tabVar[],char *key){
@@ -142,6 +142,29 @@ void supVar(Variable v){
   free(v->name);
   free(v);
   supVar(tmp);
+}
+
+char* SuppSpace(char *str){
+  int i=0;
+  int size=strlen(str);
+
+  while(i<size && str[i]==' ')
+    i++;
+  if(i==size-1){
+    if(i==0)
+      return str;
+    return NULL;
+  }
+  int j=size-1;
+  while(j>i && str[j]==' ')
+    j--;
+  char* new=malloc(j-i+1);
+  int k;
+  for(k=0;i<=j;k++,i++){
+    new[k]=str[i];
+  }
+  new[k]='\0';
+  return new;
 }
 
 int main(){
@@ -173,18 +196,37 @@ int main(){
       continue;
     }
     if(bufflen(buffer)==2){
+      buffer2=separe(buffer[1],"(");
+      if(bufflen(buffer2)>2){
+        fprintf(stderr,"Unexpected '('\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      if(bufflen(buffer2)==2){
+        buffer2[0]=SuppSpace(buffer2[0]);
+        if(strcmp(buffer2[0],"Matrix")==0)
+          printf("Tu veux faire une matrix ! \n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer[0]=SuppSpace(buffer[0]);
       createVar(buffer[0],buffer[1],tabVar);
       free(buffer);
+      free(buffer2);
       continue;
     }
     buffer2=separe(buffer[0],"(");
     if(bufflen(buffer2)==1){
+      buffer2[0]=SuppSpace(buffer2[0]);
       afficheVar(tabVar,buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
-    printf("Non reconnu\n");
+    buffer[0]=SuppSpace(buffer[0]);
+    printf("%s non reconnu\n",buffer[0]);
     free(buffer);
     free(buffer2);
   }
