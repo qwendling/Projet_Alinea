@@ -1,7 +1,8 @@
 #include "cmd.h"
 
 int hach(char* name){
-  unsigned int i,h=0;
+  unsigned int i;
+  int h=0;
   for(i=0;i<strlen(name);i++){
     h+=name[i]<<i;
   }
@@ -49,16 +50,143 @@ char **separe( char *chaine, const char *separateurs ){
 	return( tab );
 }
 
+int bufflen(char** buff){
+  int i=0;
+  for(;*buff;buff++){
+    i++;
+  }
+  return i;
+}
+
+int est_float(char *number){
+  unsigned int i=0;
+  int nbPoint=0;
+  while(i<strlen(number) && number[i]==' ')
+    i++;
+  for(;i<strlen(number);i++){
+    if(number[i]>='0' && number[i]<='9')
+      continue;
+    if(number[i]=='.'){
+      nbPoint++;
+      if(nbPoint>1){
+        return 0;
+      }
+      continue;
+    }
+    if(number[i]==' '){
+      break;
+    }
+    return 0;
+  }
+  for(;i<strlen(number);i++){
+    if(number[i]!=' '){
+      return 0;
+    }
+  }
+  return 1;
+}
+
+Variable existeVar(Variable v,char *key){
+  if(v==NULL){
+    return NULL;
+  }
+  if(strcmp(v->name,key)==0){
+    return v;
+  }
+  return existeVar(v->next,key);
+}
+
+Variable adjVar(Variable v,E x,char* key){
+  Variable e=existeVar(v,key);
+  if(e!=NULL){
+    e->val=x;
+    return v;
+  }
+  Variable new=malloc(sizeof(var));
+  new->name=malloc(strlen(key)+1);
+  new->name=strcpy(new->name,key);
+  new->val=x;
+  new->next=v;
+
+  return new;
+}
+
+void createVar(char *key,char *val,Variable tabVar[]){
+  int h=hach(key);
+  if(est_float(val)==0){
+    fprintf(stderr,"%s n'est pas un float\n",val);
+    return;
+  }
+  tabVar[h]=adjVar(tabVar[h],atof(val),key);
+  printf("variable créé\n");
+}
+
+void afficheVar(Variable tabVar[],char *key){
+  int i;
+  Variable tmp;
+  for(i=0;i<4096;i++){
+    tmp=existeVar(tabVar[i],key);
+    if(tmp!=NULL){
+      printf("%lf\n",tmp->val);
+      return;
+    }
+  }
+  printf("Variable non reconnu\n");
+}
+
+void supVar(Variable v){
+  if(v==NULL){
+    return;
+  }
+  Variable tmp=v->next;
+  free(v->name);
+  free(v);
+  supVar(tmp);
+}
+
 int main(){
   char input[4096];
   Variable tabVar[4096];
-  VarMatrix tabVarMat[4096];
+  //VarMatrix tabVarMat[4096];
+  int i;
+  for(i=0;i<4096;i++){
+    tabVar[i]=NULL;
+    //tabVarMat[i]=NULL;
+  }
+  char** buffer;
+  char **buffer2;
   while(1){
+    printf("> ");
     fgets(input,4096,stdin);
     input[strlen(input)-1]='\0';
     if(strcmp(input,"quit")==0){
+      for(i=0;i<4096;i++){
+        supVar(tabVar[i]);
+        //tabVarMat[i]=NULL;
+      }
       break;
     }
+    buffer=separe(input,":");
+    if(bufflen(buffer)>2){
+      fprintf(stderr,"Unexpected ':'\n");
+      free(buffer);
+      continue;
+    }
+    if(bufflen(buffer)==2){
+      createVar(buffer[0],buffer[1],tabVar);
+      free(buffer);
+      continue;
+    }
+    buffer2=separe(buffer[0],"(");
+    if(bufflen(buffer2)==1){
+      afficheVar(tabVar,buffer2[0]);
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    printf("Non reconnu\n");
+    free(buffer);
+    free(buffer2);
   }
   return 0;
 }

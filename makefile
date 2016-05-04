@@ -21,3 +21,11 @@ $(OPATH)/%.o : $(CPATH)/%.c
 	$(CC) $(CFLAGS) -c $< $(IFLAGS) -o $@
 clean :
 	rm $(OPATH)/* $(BPATH)/*
+# DO NOT DELETE
+
+$(OPATH)/cmd.o: include/cmd.h
+$(OPATH)/cmd.o: include/operation.h
+$(OPATH)/cmd.o: include/Matrix.h
+$(OPATH)/Matrix.o: include/Matrix.h
+$(OPATH)/operation.o: include/operation.h
+$(OPATH)/operation.o: include/Matrix.h

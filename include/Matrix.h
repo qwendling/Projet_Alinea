@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef float E;
+typedef double E;
 
 typedef struct{
 	E *mat;

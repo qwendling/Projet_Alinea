@@ -6,7 +6,7 @@
 
 typedef struct var{
   char *name;
-  float val;
+  E val;
   struct var* next;
 }var,*Variable;
 
