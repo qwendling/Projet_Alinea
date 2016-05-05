@@ -95,13 +95,20 @@ void combineLine(Matrix V,E c1,int l1,E c2,int l2){
   }
 }
 
+E abso(E val){
+	if(val < 0 )
+		return -1 * val;
+	else
+		return val;
+	}
+
 Matrix triangle(const Matrix m){
 	Matrix D=copyMatrix(m);
   int i,k,tmp;
   E pivot;
   for(k=0;k<(D->nrows-1);k++){
     tmp=k;
-    while((pivot=getElt(D,tmp,k))<0.0001){
+    while(tmp<(D->nrows-1) && abso((pivot=getElt(D,tmp,k)))<0.0001){
       tmp++;
     }
     swapLine(D,tmp,k);
@@ -109,17 +116,27 @@ Matrix triangle(const Matrix m){
       combineLine(D,(-getElt(D,i,k)/pivot),k,1,i);
     }
   }
+
   return D;
 }
 
-int determinant(const Matrix m){
+E determinant(const Matrix m){
 	if(m->nrows != m->ncol){
 		fprintf(stderr,"La matrice n'est pas carré");
 		return 0;
 	}
 	Matrix D=triangle(m);
-	int i;
-	int deter=1;
+	int i,k;
+	E deter=1;
+	for(i=D->nrows-1;i>0;i--){
+		for(k=i-1;k>=0;k--){
+			if(abso(getElt(D,i,i))<0.00001){
+				deleteMatrix(D);
+				return 0.;
+			}
+      combineLine(D,(-getElt(D,k,i)/getElt(D,i,i)),i,1,k);
+		}
+	}
 	for(i=0;i<m->nrows;i++){
 		deter*=getElt(D,i,i);
 	}
@@ -128,6 +145,10 @@ int determinant(const Matrix m){
 }
 
 Matrix solve_gauss_simple(const Matrix A,const Matrix B){
+	if(abso(determinant(A))<0.00001){
+		fprintf(stderr,"La matrice n'est pas inversible\n");
+		return NULL;
+	}
   Matrix X=newMatrix(B->nrows,B->ncol);
   Matrix D=copyMatrix(A);
 	Matrix Bcpy=copyMatrix(B);
@@ -135,7 +156,7 @@ Matrix solve_gauss_simple(const Matrix A,const Matrix B){
   E pivot;
   for(k=0;k<(D->nrows-1);k++){
     tmp=k;
-    while((pivot=getElt(D,tmp,k))<0.0001){
+    while(tmp<(D->nrows-1) && abso((pivot=getElt(D,tmp,k)))<0.0001){
       tmp++;
     }
     swapLine(D,tmp,k);
@@ -162,7 +183,7 @@ Matrix inverse(const Matrix m){
 		fprintf(stderr,"La matrice n'est pas carré\n");
 		return NULL;
 	}
-	if(determinant(m)==0){
+	if(abso(determinant(m))<0.00001){
 		fprintf(stderr,"La matrice n'est pas inversible\n");
 		return NULL;
 	}
@@ -172,7 +193,7 @@ Matrix inverse(const Matrix m){
   E pivot;
 	for(k=0;k<(A->nrows-1);k++){
     tmp=k;
-    while((pivot=getElt(A,tmp,k))<0.0001){
+    while(tmp<(A->nrows-1) && abso((pivot=getElt(A,tmp,k)))<0.0001){
       tmp++;
     }
     swapLine(A,tmp,k);
@@ -254,13 +275,13 @@ Matrix * decompositionLU(const Matrix m){
 			displayMatrix(l);
 			displayMatrix(u);
 		}
-	
+
 	setElt(u,n-1,n-1, getElt(m, n-1,n-1 ) - sommeAux3(l,u,n-1));
-		
+
 	Matrix * lu = (Matrix *) malloc( sizeof(std_matrix) * 2);
 	lu[0] =l;
 	lu[1] = u;
-	
+
 	return lu;
 	}
 
@@ -274,13 +295,6 @@ int approxMat(Matrix m1, Matrix m2, E precision){
 			}
 		}
 	return 1;
-	}
-
-E abso(E val){
-	if(val < 0 )
-		return -1 * val;
-	else
-		return val;
 	}
 
 E maxComposante(Matrix m){
@@ -315,10 +329,11 @@ couple approximation_vp(const Matrix a, E precision){
 		unew = multScalaire(unew,(1/vpnew));
 		}
 	while( abso( vpnew - vp ) > precision || !approxMat(unew,u,precision) );
-	
+
 	couple cp = (couple) malloc(sizeof(struct scouple));
 	cp->valp = vpnew;
 	cp->vectp = unew;
+	return cp;
 	}
 
 couple* liste_vp(const Matrix a, E precision){
@@ -333,4 +348,3 @@ couple* liste_vp(const Matrix a, E precision){
 		}
 	return tab;
 	}
-

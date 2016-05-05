@@ -12,9 +12,10 @@ Matrix multScalaire(const Matrix m,E x);
 Matrix transpose(const Matrix m);
 Matrix expo(const Matrix m,int exposant);
 Matrix triangle(const Matrix m);
-int determinant(const Matrix m);
+E determinant(const Matrix m);
 Matrix inverse(const Matrix m);
 int rank(const Matrix m);
+Matrix solve_gauss_simple(const Matrix A,const Matrix B);
 typedef struct scouple{
 	E valp;
 	Matrix vectp;
