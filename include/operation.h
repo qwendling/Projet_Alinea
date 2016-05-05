@@ -15,5 +15,15 @@ Matrix triangle(const Matrix m);
 int determinant(const Matrix m);
 Matrix inverse(const Matrix m);
 int rank(const Matrix m);
+typedef struct scouple{
+	E valp;
+	Matrix vectp;
+	} *couple;
+
+Matrix * decompositionLU(const Matrix m);
+E maxComposante(Matrix m);
+int approxMat(Matrix m1, Matrix m2, E precision);
+couple approximation_vp(const Matrix a, E precision);
+E abso(E val);
 
 #endif
