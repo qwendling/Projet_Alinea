@@ -1,5 +1,8 @@
 #include "cmd.h"
 
+Variable tabVar[4096];
+VarMatrix tabVarMat[4096];
+
 int hach(char* name){
   unsigned int i;
   int h=0;
@@ -59,11 +62,14 @@ int bufflen(char** buff){
 }
 
 int est_float(char *number){
-  unsigned int i=0;
+  int i=0;
   int nbPoint=0;
-  while(i<strlen(number) && number[i]==' ')
+  int size=strlen(number);
+  while(i<size && number[i]==' ')
     i++;
-  for(;i<strlen(number);i++){
+  if(i!=size && number[i]=='-')
+    i++;
+  for(;i<size;i++){
     if(number[i]>='0' && number[i]<='9')
       continue;
     if(number[i]=='.'){
@@ -78,7 +84,7 @@ int est_float(char *number){
     }
     return 0;
   }
-  for(;i<strlen(number);i++){
+  for(;i<size;i++){
     if(number[i]!=' '){
       return 0;
     }
@@ -111,7 +117,7 @@ Variable adjVar(Variable v,E x,char* key){
   return new;
 }
 
-void createVar(char *key,char *val,Variable tabVar[]){
+void createVar(char *key,char *val){
   int h=hach(key);
   if(est_float(val)==0){
     fprintf(stderr,"%s n'est pas un float\n",val);
@@ -189,7 +195,7 @@ VarMatrix adjVarMat(VarMatrix v,Matrix m,char* key){
   return new;
 }
 
-void createMatrix(char *key,char* mat,VarMatrix tabVarMat[]){
+void createMatrix(char *key,char* mat){
   int i;
   int size=strlen(mat);
   int nbligne=0,nbcol=0,nbcoltmp,sizetmp;
@@ -293,19 +299,19 @@ void createMatrix(char *key,char* mat,VarMatrix tabVarMat[]){
   free(buffer);
 }
 
-Variable rechercheVar(char *key,Variable tab[]){
-  return existeVar(tab[hach(key)],key);
+Variable rechercheVar(char *key){
+  return existeVar(tabVar[hach(key)],key);
 }
 
-VarMatrix rechercheVarMat(char *key,VarMatrix tab[]){
-  return existeMatrix(key,tab[hach(key)]);
+VarMatrix rechercheVarMat(char *key){
+  return existeMatrix(key,tabVarMat[hach(key)]);
 }
 
-void afficheVar(Variable tabVar[],VarMatrix tabVarMat[],char *key){
-  VarMatrix tmpMat=rechercheVarMat(key,tabVarMat);
+void afficheVar(char *key){
+  VarMatrix tmpMat=rechercheVarMat(key);
   Variable tmpVar;
   if(tmpMat==NULL){
-    tmpVar=rechercheVar(key,tabVar);
+    tmpVar=rechercheVar(key);
     if(tmpVar==NULL){
       fprintf(stderr,"Variable non reconnu\n");
       return;
@@ -316,10 +322,77 @@ void afficheVar(Variable tabVar[],VarMatrix tabVarMat[],char *key){
   }
 }
 
+Matrix addInter(char* arg){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=2){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg2=rechercheVarMat(buffer[1]);
+  if(arg2==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[1]);
+    free(buffer);
+    return NULL;
+  }
+  free(buffer);
+  return addition(arg1->val,arg2->val);
+}
+
+Matrix subInter(char* arg){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=2){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg2=rechercheVarMat(buffer[1]);
+  if(arg2==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[1]);
+    free(buffer);
+    return NULL;
+  }
+  free(buffer);
+  return soustraction(arg1->val,arg2->val);
+}
+
+Matrix multInter(char* arg){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=2){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg2=rechercheVarMat(buffer[1]);
+  if(arg2==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[1]);
+    free(buffer);
+    return NULL;
+  }
+  free(buffer);
+  return mult(arg1->val,arg2->val);
+}
+
 int main(){
   char input[4096];
-  Variable tabVar[4096];
-  VarMatrix tabVarMat[4096];
   int i,tmp;
   for(i=0;i<4096;i++){
     tabVar[i]=NULL;
@@ -327,6 +400,7 @@ int main(){
   }
   char** buffer;
   char **buffer2;
+  Matrix Mattmp;
   while(1){
     printf("> ");
     fgets(input,4096,stdin);
@@ -373,10 +447,10 @@ int main(){
         }
         if(strcmp(buffer2[0],"Matrix")==0){
           buffer2[1][strlen(buffer2[1])-1]='\0';
-          if(rechercheVar(buffer[0],tabVar)!=NULL)
+          if(rechercheVar(buffer[0])!=NULL)
             fprintf(stderr,"%s est de type float\n",buffer[0]);
           else
-            createMatrix(buffer[0],buffer2[1],tabVarMat);
+            createMatrix(buffer[0],buffer2[1]);
           free(buffer);
           free(buffer2);
           continue;
@@ -387,10 +461,10 @@ int main(){
         continue;
       }
       buffer[0]=SuppSpace(buffer[0]);
-      if(rechercheVarMat(buffer[0],tabVarMat)!=NULL)
+      if(rechercheVarMat(buffer[0])!=NULL)
         fprintf(stderr,"%s est une Matrice\n",buffer[0]);
       else
-        createVar(buffer[0],buffer[1],tabVar);
+        createVar(buffer[0],buffer[1]);
       free(buffer);
       free(buffer2);
       continue;
@@ -398,9 +472,67 @@ int main(){
     //Sinon on regarde si c'est un appel de fonction ou une variable
     buffer2=separe(buffer[0],"(");
     //C'est une varible on affiche ça valeur
+    if(bufflen(buffer2)>2){
+      fprintf(stderr,"Unexpected '('\n");
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
     if(bufflen(buffer2)==1){
       buffer2[0]=SuppSpace(buffer2[0]);
-      afficheVar(tabVar,tabVarMat,buffer2[0]);
+      afficheVar(buffer2[0]);
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    buffer2[0]=SuppSpace(buffer2[0]);
+    if(strcmp(buffer2[0],"add")==0){
+      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
+        fprintf(stderr,"Expected ')'\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      Mattmp=addInter(buffer2[1]);
+      if(Mattmp!=NULL){
+        displayMatrix(Mattmp);
+        deleteMatrix(Mattmp);
+      }
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    if(strcmp(buffer2[0],"soustraction")==0){
+      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
+        fprintf(stderr,"Expected ')'\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      Mattmp=subInter(buffer2[1]);
+      if(Mattmp!=NULL){
+        displayMatrix(Mattmp);
+        deleteMatrix(Mattmp);
+      }
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    if(strcmp(buffer2[0],"mult")==0){
+      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
+        fprintf(stderr,"Expected ')'\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      Mattmp=multInter(buffer2[1]);
+      if(Mattmp!=NULL){
+        displayMatrix(Mattmp);
+        deleteMatrix(Mattmp);
+      }
       free(buffer);
       free(buffer2);
       continue;
