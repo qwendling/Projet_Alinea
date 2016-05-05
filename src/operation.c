@@ -212,3 +212,54 @@ int rank(const Matrix m){
 	}
 	return r;
 }
+
+//m1 correspond à notre l et m2 à u
+E sommeAux(Matrix m1, Matrix m2, int positioni, int positionj ){
+	E somme=0,k;
+	for(k=0; k <= positioni-1; k++){
+		somme += getElt(m1,positioni,k) * getElt(m2, k, positionj);
+		}
+	return somme;
+	}
+
+E sommeAux2(Matrix m1, Matrix m2, int positioni, int positionj ){
+	E somme=0,k;
+	for(k=0; k <= positioni-1; k++){
+		somme += getElt(m1,positionj,k) * getElt(m2, k, positioni);
+		}
+	return somme;
+	}
+
+E sommeAux3(Matrix m1, Matrix m2, int positionN){
+	E somme=0,k;
+	for(k=0; k <= positionN-1; k++){
+		somme += getElt(m1,positionN,k) * getElt(m2, k, positionN);
+		}
+	return somme;
+	}
+
+Matrix * decompositionLU(const Matrix m){
+	int i,j,n=m->nrows;
+	Matrix l = Identite(n);
+	Matrix u = newMatrix(n,n);
+
+	for(i=0;i< n -1;i++){
+		for(j=i;j < n; j++){
+			setElt(u,i,j, getElt(m,i,j) - sommeAux(l,u,i,j));
+			}
+		for(j=i+1; j < n; j++){
+			setElt(l,j,i, ( (1. / getElt(u,i,i)) * (getElt(m,j,i) - sommeAux2(l,u,i,j))));
+			}
+			printf(" itération : %d \n", i);
+			displayMatrix(l);
+			displayMatrix(u);
+		}
+	
+	setElt(u,n-1,n-1, getElt(m, n-1,n-1 ) - sommeAux3(l,u,n-1));
+		
+	Matrix * lu = (Matrix *) malloc( sizeof(std_matrix) * 2);
+	lu[0] =l;
+	lu[1] = u;
+	
+	return lu;
+	}
