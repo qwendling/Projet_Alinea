@@ -223,6 +223,7 @@ void createMatrix(char *key,char* mat,VarMatrix tabVarMat[]){
             fprintf(stderr,"Toute les lignes n'ont pas la meme taille\n");
             return;
           }
+        nbligne++;
         continue;
       }
       if(est_float(buffer[i]+1)==0){
