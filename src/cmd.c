@@ -391,6 +391,54 @@ Matrix multInter(char* arg){
   return mult(arg1->val,arg2->val);
 }
 
+Matrix transposeInter(char* arg){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=1){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    return NULL;
+  }
+  free(buffer);
+  return transpose(arg1->val);
+}
+
+Matrix multScalaireInter(char* arg){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=2){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return NULL;
+  }
+  Variable arg1=rechercheVar(buffer[0]);
+  E scal;
+  if(arg1==NULL){
+    if(est_float(buffer[0])){
+      scal=atof(buffer[0]);
+    }else{
+      fprintf(stderr,"%s n'est pas un float\n",buffer[0]);
+      free(buffer);
+      return NULL;
+    }
+  }
+  else{
+    scal=arg1->val;
+  }
+  VarMatrix arg2=rechercheVarMat(buffer[1]);
+  if(arg2==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[1]);
+    free(buffer);
+    return NULL;
+  }
+  free(buffer);
+  return multScalaire(arg2->val,scal);
+}
+
 int main(){
   char input[4096];
   int i,tmp;
@@ -529,6 +577,40 @@ int main(){
       }
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=multInter(buffer2[1]);
+      if(Mattmp!=NULL){
+        displayMatrix(Mattmp);
+        deleteMatrix(Mattmp);
+      }
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    if(strcmp(buffer2[0],"multScalaire")==0){
+      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
+        fprintf(stderr,"Expected ')'\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      Mattmp=multScalaireInter(buffer2[1]);
+      if(Mattmp!=NULL){
+        displayMatrix(Mattmp);
+        deleteMatrix(Mattmp);
+      }
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    if(strcmp(buffer2[0],"transpose")==0){
+      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
+        fprintf(stderr,"Expected ')'\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      Mattmp=transposeInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
