@@ -126,17 +126,8 @@ E determinant(const Matrix m){
 		return 0;
 	}
 	Matrix D=triangle(m);
-	int i,k;
+	int i;
 	E deter=1;
-	for(i=D->nrows-1;i>0;i--){
-		for(k=i-1;k>=0;k--){
-			if(abso(getElt(D,i,i))<0.00001){
-				deleteMatrix(D);
-				return 0.;
-			}
-      combineLine(D,(-getElt(D,k,i)/getElt(D,i,i)),i,1,k);
-		}
-	}
 	for(i=0;i<m->nrows;i++){
 		deter*=getElt(D,i,i);
 	}
@@ -227,7 +218,7 @@ int rank(const Matrix m){
 				r--;
 				break;
 			}
-			if(getElt(D,i,j)>0.00001)
+			if(abso(getElt(D,i,j))>0.00001)
 				break;
 		}
 	}
@@ -271,9 +262,6 @@ Matrix * decompositionLU(const Matrix m){
 		for(j=i+1; j < n; j++){
 			setElt(l,j,i, ( (1. / getElt(u,i,i)) * (getElt(m,j,i) - sommeAux2(l,u,i,j))));
 			}
-			printf(" itération : %d \n", i);
-			displayMatrix(l);
-			displayMatrix(u);
 		}
 
 	setElt(u,n-1,n-1, getElt(m, n-1,n-1 ) - sommeAux3(l,u,n-1));

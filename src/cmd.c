@@ -550,6 +550,43 @@ Matrix solveInter(char* arg){
   return solve_gauss_simple(arg1->val,arg2->val);
 }
 
+int rankInter(char* arg,int* valide){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=1){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    *valide=0;
+    return 0;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    *valide=0;
+    return 0;
+  }
+  free(buffer);
+  *valide=1;
+  return rank(arg1->val);
+}
+
+Matrix* LUInter(char* arg){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=1){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    return NULL;
+  }
+  free(buffer);
+  return decompositionLU(arg1->val);
+}
+
 int main(){
   char input[4096];
   int i,tmp;
@@ -559,6 +596,7 @@ int main(){
   }
   char** buffer;
   char **buffer2;
+  Matrix *tabmat;
   Matrix Mattmp;
   E tmpE;
   while(1){
@@ -793,6 +831,46 @@ int main(){
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
+      }
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    if(strcmp(buffer2[0],"rank")==0){
+      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
+        fprintf(stderr,"Expected ')'\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      tmp=rankInter(buffer2[1],&i);
+      if(i==1){
+        printf("\t%d\n",tmp);
+      }
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    if(strcmp(buffer2[0],"LU")==0){
+      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
+        fprintf(stderr,"Expected ')'\n");
+        free(buffer);
+        free(buffer2);
+        continue;
+      }
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      tabmat=LUInter(buffer2[1]);
+      if(tabmat!=NULL){
+        printf("L:\n");
+        displayMatrix(tabmat[0]);
+        printf("U:\n");
+        displayMatrix(tabmat[1]);
+        printf("Verif:\n");
+        displayMatrix(mult(tabmat[0],tabmat[1]));
+        deleteMatrix(tabmat[0]);
+        deleteMatrix(tabmat[1]);
+        free(tabmat);
       }
       free(buffer);
       free(buffer2);
