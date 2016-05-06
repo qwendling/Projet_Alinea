@@ -1,4 +1,5 @@
 #include "cmd.h"
+#define VERIF if(buffer2[1][strlen(buffer2[1])-1]!=')'){fprintf(stderr,"Expected ')'\n");free(buffer);free(buffer2);continue;}
 
 Variable tabVar[4096];
 VarMatrix tabVarMat[4096];
@@ -158,6 +159,17 @@ void supVar(Variable v){
   free(v->name);
   free(v);
   supVar(tmp);
+}
+
+void supVarMat(VarMatrix v){
+  if(v==NULL){
+    return;
+  }
+  VarMatrix tmp=v->next;
+  deleteMatrix(v->val);
+  free(v->name);
+  free(v);
+  supVarMat(tmp);
 }
 
 char* SuppSpace(char *str){
@@ -602,12 +614,15 @@ int main(){
   while(1){
     printf("> ");
     fgets(input,4096,stdin);
+    if(strlen(input)==1){
+		continue;
+	}
     input[strlen(input)-1]='\0';
     //Si on entre quit on quitte
     if(strcmp(input,"quit")==0){
       for(i=0;i<4096;i++){
         supVar(tabVar[i]);
-        //tabVarMat[i]=NULL;
+        supVarMat(tabVarMat[i]);
       }
       break;
     }
@@ -633,12 +648,16 @@ int main(){
         tmp=countChar(buffer2[1],')');
         if(tmp==0){
           fprintf(stderr,"Expected ')'\n");
+          free(buffer2[0]);
+          free(buffer[1]);
           free(buffer);
           free(buffer2);
           continue;
         }
         if(tmp>1){
           fprintf(stderr,"Unexpected ')'\n");
+          free(buffer2[0]);
+          free(buffer[1]);
           free(buffer);
           free(buffer2);
           continue;
@@ -649,11 +668,153 @@ int main(){
             fprintf(stderr,"%s est de type float\n",buffer[0]);
           else
             createMatrix(buffer[0],buffer2[1]);
+          free(buffer2[0]);
+          free(buffer[1]);
           free(buffer);
           free(buffer2);
           continue;
         }
+        if(strcmp(buffer2[0],"addition")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=addInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"sub")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=subInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"mult")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=multInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"mult_scal")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=multScalaireInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"transpose")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=transposeInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"expo")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=expoInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"invert")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=inverseInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"solve")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  Mattmp=solveInter(buffer2[1]);
+		  if(Mattmp!=NULL){
+			displayMatrix(Mattmp);
+			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"determinant")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  tmpE=deterInter(buffer2[1],&i);
+		  if(i==1){
+			tabVar[hach(buffer[0])]=adjVar(tabVar[hach(buffer[0])],tmpE,buffer[0]);
+			printf("variable créée\n");
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
+		if(strcmp(buffer2[0],"rank")==0){
+		  VERIF
+		  buffer2[1][strlen(buffer2[1])-1]='\0';
+		  tmp=rankInter(buffer2[1],&i);
+		  if(i==1){
+			tabVar[hach(buffer[0])]=adjVar(tabVar[hach(buffer[0])],tmpE,buffer[0]);
+			printf("variable créée\n");
+		  }
+		  free(buffer2[0]);
+          free(buffer[1]);
+		  free(buffer);
+		  free(buffer2);
+		  continue;
+		}
         printf("%s non reconnu\n",buffer2[0]);
+        free(buffer2[0]);
+        free(buffer[1]);
         free(buffer);
         free(buffer2);
         continue;
@@ -663,6 +824,7 @@ int main(){
         fprintf(stderr,"%s est une Matrice\n",buffer[0]);
       else
         createVar(buffer[0],buffer[1]);
+      free(buffer[0]);
       free(buffer);
       free(buffer2);
       continue;
@@ -678,187 +840,142 @@ int main(){
     }
     buffer2[0]=SuppSpace(buffer2[0]);
     if(bufflen(buffer2)==1){
-      buffer2[0]=SuppSpace(buffer2[0]);
       afficheVar(buffer2[0]);
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"addition")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=addInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"sub")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=subInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"mult")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=multInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"mult_scal")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=multScalaireInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"transpose")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=transposeInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"expo")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=expoInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"determinant")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       tmpE=deterInter(buffer2[1],&i);
       if(i==1){
         printf("\t%lf\n",tmpE);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"invert")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=inverseInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"solve")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       Mattmp=solveInter(buffer2[1]);
       if(Mattmp!=NULL){
         displayMatrix(Mattmp);
         deleteMatrix(Mattmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"rank")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       tmp=rankInter(buffer2[1],&i);
       if(i==1){
         printf("\t%d\n",tmp);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
     }
     if(strcmp(buffer2[0],"LU")==0){
-      if(buffer2[1][strlen(buffer2[1])-1]!=')'){
-        fprintf(stderr,"Expected ')'\n");
-        free(buffer);
-        free(buffer2);
-        continue;
-      }
+      VERIF
       buffer2[1][strlen(buffer2[1])-1]='\0';
       tabmat=LUInter(buffer2[1]);
       if(tabmat!=NULL){
@@ -872,6 +989,7 @@ int main(){
         deleteMatrix(tabmat[1]);
         free(tabmat);
       }
+      free(buffer2[0]);
       free(buffer);
       free(buffer2);
       continue;
@@ -880,6 +998,8 @@ int main(){
     //On ne sait pas à quoi correspond l'entrée
     buffer[0]=SuppSpace(buffer[0]);
     printf("%s non reconnu\n",buffer[0]);
+    free(buffer2[0]);
+    free(buffer[0]);
     free(buffer);
     free(buffer2);
   }

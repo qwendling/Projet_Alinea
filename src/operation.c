@@ -108,7 +108,7 @@ Matrix triangle(const Matrix m){
   E pivot;
   for(k=0;k<(D->nrows-1);k++){
     tmp=k;
-    while(tmp<(D->nrows-1) && abso((pivot=getElt(D,tmp,k)))<0.0001){
+    while(tmp<(D->nrows) && abso((pivot=getElt(D,tmp,k)))<0.0001){
       tmp++;
     }
     swapLine(D,tmp,k);
@@ -131,7 +131,6 @@ E determinant(const Matrix m){
 	for(i=0;i<m->nrows;i++){
 		deter*=getElt(D,i,i);
 	}
-	deleteMatrix(D);
 	return deter;
 }
 
