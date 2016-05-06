@@ -245,16 +245,19 @@ void createMatrix(char *key,char* mat){
       sizetmp=strlen(buffer[i]);
       if(sizetmp==1){
         fprintf(stderr,"Aucune valeur trouvée pour une case de la matrice \n");
+        free(buffer);
         return;
       }
       if(buffer[i][sizetmp-1]==']'){
         if(sizetmp==2){
           fprintf(stderr,"Aucune valeur trouvée pour une case de la matrice \n");
+          free(buffer);
           return;
         }
         buffer[i][sizetmp-1]='\0';
-        if(est_float(buffer[i]+1)==0){
+        if(est_float(buffer[i]+1)==0 && existeVar(tabVar[hach(buffer[i]+1)],buffer[i]+1)==NULL){
           fprintf(stderr,"Unexpected %s\n",buffer[i]+1);
+          free(buffer);
           return;
         }
         if(nbcol==0)
@@ -262,15 +265,17 @@ void createMatrix(char *key,char* mat){
         else
           if(nbcol!=1){
             fprintf(stderr,"Toute les lignes n'ont pas la meme taille\n");
+            free(buffer);
             return;
           }
         nbligne++;
         continue;
       }
-      if(est_float(buffer[i]+1)==0){
-        fprintf(stderr,"Unexpected %s\n",buffer[i]+1);
-        return;
-      }
+      if(est_float(buffer[i]+1)==0 && existeVar(tabVar[hach(buffer[i]+1)],buffer[i]+1)==NULL){
+          fprintf(stderr,"Unexpected %s\n",buffer[i]+1);
+          free(buffer);
+          return;
+        }
       nbcoltmp=1;
       i++;
       nbligne++;
@@ -282,18 +287,19 @@ void createMatrix(char *key,char* mat){
             return;
           }
           buffer[i][sizetmp-1]='\0';
-          if(est_float(buffer[i])==0){
-            fprintf(stderr,"Unexpected %s\n",buffer[i]);
-            return;
-          }
+          if(est_float(buffer[i])==0 && existeVar(tabVar[hach(buffer[i])],buffer[i])==NULL){
+			  fprintf(stderr,"Unexpected %s\n",buffer[i]);
+			  free(buffer);
+			  return;
+		  }
           nbcoltmp++;
           break;
         }
-        if(est_float(buffer[i])==0){
-        fprintf(stderr,"Unexpected '%c'\n",buffer[i][0]);
-        free(buffer);
-        return;
-        }
+        if(est_float(buffer[i])==0 && existeVar(tabVar[hach(buffer[i])],buffer[i])==NULL){
+			  fprintf(stderr,"Unexpected %s\n",buffer[i]);
+			  free(buffer);
+			  return;
+		  }
         nbcoltmp++;
       }
       if(nbcol==0){
@@ -318,14 +324,25 @@ void createMatrix(char *key,char* mat){
   int row=0,col;
   for(i=0;i<sizebuff;i++,row++){
     if(buffer[i][0]=='['){
-      col=0;
-      setElt(new,row,col,atof(buffer[i]+1));
-      col++;
-      i++;
-      for(;col<nbcol;i++,col++){
-        setElt(new,row,col,atof(buffer[i]));
-      }
-      i--;
+		if(est_float(buffer[i]+1)){
+		  col=0;
+		  setElt(new,row,col,atof(buffer[i]+1));
+		  col++;
+		  i++;
+		  for(;col<nbcol;i++,col++){
+			setElt(new,row,col,atof(buffer[i]));
+		  }
+		  i--;
+		}else{
+			col=0;
+		  setElt(new,row,col,existeVar(tabVar[hach(buffer[i]+1)],buffer[i]+1)->val);
+		  col++;
+		  i++;
+		  for(;col<nbcol;i++,col++){
+			setElt(new,row,col,existeVar(tabVar[hach(buffer[i])],buffer[i])->val);
+		  }
+		  i--;
+		}
     }
   }
   displayMatrix(new);
