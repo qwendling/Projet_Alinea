@@ -1,5 +1,11 @@
 #include "cmd.h"
+#include <time.h>
 #define VERIF if(buffer2[1][strlen(buffer2[1])-1]!=')'){fprintf(stderr,"Expected ')'\n");free(buffer);free(buffer2);continue;}
+#define GNUPLOT_PATH "/usr/bin/gnuplot"
+#define MIN -10
+#define MAX 10
+#define EXPOSANT 3
+#define PRECISION 0.1
 
 Variable tabVar[4096];
 VarMatrix tabVarMat[4096];
@@ -11,6 +17,312 @@ int hach(char* name){
     h+=name[i]<<i;
   }
   return h%4096;
+}
+
+E scalAleatoire(E min, E max){
+	E f =((E)rand()/(E)RAND_MAX)*(max-min) +min;
+	return f;
+	}
+
+
+Matrix aleatoire(int nrows, int ncol ,E min, E max){
+	Matrix m = newMatrix(nrows, ncol);
+	int i,j;
+	for(i=0; i<m->nrows; i++){
+		for(j=0; j<m->ncol; j++){
+			E f =((E)rand()/(E)RAND_MAX)*(max-min) +min;
+			setElt(m,i,j,f);
+			}
+		}
+	return m;
+	}
+
+void deleteListe(couple * liste,int taille){
+	int i;
+	for(i=0;i<taille;i++){
+		deleteMatrix(liste[i]->vectp);
+		}
+	free (liste);
+	}
+
+double maximum(double * tab, int nbrElem){
+	int i;
+	double max = tab[nbrElem-1];
+	for(i=0;i<nbrElem;i++){
+		if(tab[i] > max)
+			max = tab[i];
+		}
+	return max;
+	}
+
+void creationGraphique(char* nomFonction){
+	FILE* gp;
+	gp = popen(GNUPLOT_PATH, "w");	
+	fprintf(gp, "load \"config.gp\"\n");
+	fflush(gp);
+	pclose(gp);
+	printf("creation de %s.png\n",nomFonction);
+	return;
+	}
+
+void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max, unsigned int pas,double nbsecondes){
+	
+	//verification des entrees
+	
+	if(taille_min>taille_max || pas == 0){
+		fprintf(stderr,"argument invalide ! \n");
+		return;
+		}
+	
+	//initialisation ds variables
+	FILE* config = fopen ("config.gp","w+");
+	FILE* data= fopen("data.dat","w+");
+	clock_t end, start,limite;
+	char * nomFonction;
+	
+	
+	int i,nbrElem =  (taille_max-taille_min) / pas +1;
+	// tableau 1d pour les x et y, le y est placé juste après le x correspondant
+	int * xval = calloc( nbrElem,sizeof(int) * nbrElem );
+	double * yval =(double*) calloc(nbrElem,sizeof(double) * nbrElem);
+	double tempsMax;
+	//corps de la fonction
+	
+	if( strcmp(commande,"addition") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		Matrix m3;
+		nomFonction = "addition";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			m3 = addition(m1,m2);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			deleteMatrix(m3);
+			}
+		}
+		
+	if( strcmp(commande,"sub") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		Matrix m3;
+		nomFonction = "sub";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			m3 = soustraction(m1,m2);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			deleteMatrix(m3);
+			}
+		}
+		
+	if( strcmp(commande,"mult") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		Matrix m3;
+		nomFonction = "mult";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			m3 = mult(m1,m2);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			deleteMatrix(m3);
+			}
+		}
+	if( strcmp(commande,"mult_scal") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		E scal;
+		nomFonction = "mult_scal";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			scal = scalAleatoire(MIN,MAX);
+			start= clock();
+			m2 = multScalaire(m1, scal);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			}
+		}
+	if( strcmp(commande,"expo") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		nomFonction = "expo";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			m2 = expo(m1, EXPOSANT);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			}
+		}
+	if( strcmp(commande,"transpose") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		nomFonction = "transpose";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			m2 = transpose(m1);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			}
+		}
+	if( strcmp(commande,"determinant") == 0 ){
+		Matrix m1;
+		int det;
+		nomFonction = "determinant";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			det = determinant(m1);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			}
+		}
+	if( strcmp(commande,"invert") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		nomFonction = "invert";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			m2 = inverse(m1);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			}
+		}
+	if( strcmp(commande,"solve") == 0 ){
+		Matrix m1;
+		Matrix m2;
+		Matrix m3;
+		nomFonction = "solve";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			m3 = solve_gauss_simple(m1,m2);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(m2);
+			deleteMatrix(m3);
+			}
+		}
+	if( strcmp(commande,"rank") == 0 ){
+		Matrix m1;
+		int det;
+		nomFonction = "rank";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			det = rank(m1);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			}
+		}
+	if( strcmp(commande,"decomposition") == 0 ){
+		Matrix m1;
+		Matrix* lu;
+		int det;
+		nomFonction = "decomposition";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			start= clock();
+			lu = decompositionLU(m1);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(lu[0]);
+			deleteMatrix(lu[1]);
+			free(lu);
+			}
+		}
+	if( strcmp(commande,"approximation_vp") == 0 ){
+		Matrix m1;
+		couple vp;
+		nomFonction = "approximation_vp";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			m1=mult(transpose(m1),m1);
+			start= clock();
+			vp = approximation_vp(m1,PRECISION);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteMatrix(vp->vectp);
+			free(vp);
+			}
+		}
+	if( strcmp(commande,"liste_vp") == 0 ){
+		Matrix m1;
+		couple* vp;
+		nomFonction = "liste_vp";
+		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
+			m1=mult(transpose(m1),m1);
+			start= clock();
+			vp = liste_vp(m1,PRECISION);
+			end = clock();
+			xval[i] = i * pas + taille_min;
+			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
+			deleteMatrix(m1);
+			deleteListe(vp,m1->ncol);
+			}
+		}
+	else{
+		fprintf(stderr,"commande inconnue\n");
+		return;
+		}
+		//epilogue
+	for(i=0;i<nbrElem;i++){
+		if(!(i!=0 && (xval[i]==0 && yval[i] == 0)))
+			fprintf(data,"%d %lf\n",xval[i],(double)yval[i]);
+		}
+	//initialisation du fichier de config
+	tempsMax = maximum(yval,nbrElem);
+	fprintf(config,"set terminal png \n set output \" %s.png \" \n set title textcolor rgb \"blue\" \" Temps d'execution en secondes de la fonction %s \\nen fonction de la taille des matrices \" \n set key outside below; set key title \"Légende\"; set key box reverse; set key box lw 2 lc 4\n set yrange [0:%f] \n set xtics textcolor rgb \"green\"; set xlabel textcolor rgb \"green\" \"Taille des matrices\"\nset ytics textcolor rgb \"red\"; set ylabel textcolor rgb \"red\" \"Temps en secondes \"\nplot \"data.dat\" using 1:2 title \"temps(s)/taille des matrices\"with lines ",nomFonction,nomFonction,tempsMax);
+	
+	fclose(config);
+	fclose(data);
+	
+	creationGraphique(nomFonction);
+	free(xval);
+	free(yval);
+	return;
 }
 
 char **separe( char *chaine, const char *separateurs ){
