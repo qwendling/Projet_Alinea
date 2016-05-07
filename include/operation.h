@@ -25,6 +25,7 @@ Matrix * decompositionLU(const Matrix m);
 E maxComposante(Matrix m);
 int approxMat(Matrix m1, Matrix m2, E precision);
 couple approximation_vp(const Matrix a, E precision);
+couple * liste_vp(const Matrix a, E precision);
 E abso(E val);
 
 #endif
