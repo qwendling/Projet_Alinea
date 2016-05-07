@@ -289,7 +289,7 @@ E maxComposante(Matrix m){
 	int i,j;
 	for(i=0;i< m->nrows;i++){
 		for(j=0;j< m->ncol;j++){
-			if(max < getElt(m,i,j))
+			if(abso(max) < abso(getElt(m,i,j)))
 				max = getElt(m,i,j);
 			}
 		}
