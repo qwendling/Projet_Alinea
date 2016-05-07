@@ -628,12 +628,24 @@ int main(){
   Matrix *tabmat;
   Matrix Mattmp;
   E tmpE;
+  struct stat info;
+  fstat(0,&info);
   while(1){
     printf("> ");
-    fgets(input,4096,stdin);
+    if(fgets(input,4096,stdin)==NULL){
+      for(i=0;i<4096;i++){
+        supVar(tabVar[i]);
+        supVarMat(tabVarMat[i]);
+      }
+      printf("quit\n");
+      break;
+    }
+    if(S_ISREG(info.st_mode)){
+      printf("%s",input);
+    }
     if(strlen(input)==1){
-		continue;
-	}
+		    continue;
+	   }
     input[strlen(input)-1]='\0';
     //Si on entre quit on quitte
     if(strcmp(input,"quit")==0){
