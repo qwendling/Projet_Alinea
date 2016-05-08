@@ -73,7 +73,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 	//initialisation des variables
 	FILE* config = fopen ("config.gp","w+");
 	FILE* data= fopen("data.dat","w+");
-	clock_t end, start,limite;
+	clock_t end, start;
 	char * nomFonction;
 
 
@@ -83,13 +83,13 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 	double * yval =(double*) calloc(nbrElem,sizeof(double) * nbrElem);
 	double tempsMax;
 	//corps de la fonction
-  
+
 	if(strcmp(commande,"addition")==0){
 		Matrix m1;
 		Matrix m2;
 		Matrix m3;
 		nomFonction = "addition";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
@@ -108,7 +108,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m2;
 		Matrix m3;
 		nomFonction = "sub";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && (i * pas + taille_min) <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
@@ -121,13 +121,13 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m3);
 			}
 		}else
-  
+
 	if(strcmp(commande,"mult")==0){
 		Matrix m1;
 		Matrix m2;
 		Matrix m3;
 		nomFonction = "mult";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
@@ -145,7 +145,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m2;
 		E scal;
 		nomFonction = "mult_scal";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			scal = scalAleatoire(MIN,MAX);
 			start= clock();
@@ -161,7 +161,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m1;
 		Matrix m2;
 		nomFonction = "expo";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
 			m2 = expo(m1, EXPOSANT);
@@ -176,7 +176,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m1;
 		Matrix m2;
 		nomFonction = "transpose";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
 			m2 = transpose(m1);
@@ -189,12 +189,11 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		}else
 	if( strcmp(commande,"determinant") == 0 ){
 		Matrix m1;
-		int det;
 		nomFonction = "determinant";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
-			det = determinant(m1);
+      determinant(m1);
 			end = clock();
 			xval[i] = i * pas + taille_min;
 			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
@@ -205,7 +204,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m1;
 		Matrix m2;
 		nomFonction = "invert";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
 			m2 = inverse(m1);
@@ -221,7 +220,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m2;
 		Matrix m3;
 		nomFonction = "solve";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			m2= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
@@ -236,12 +235,11 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		}else
 	if( strcmp(commande,"rank") == 0 ){
 		Matrix m1;
-		int det;
 		nomFonction = "rank";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
-			det = rank(m1);
+      rank(m1);
 			end = clock();
 			xval[i] = i * pas + taille_min;
 			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
@@ -251,9 +249,8 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 	if( strcmp(commande,"LU") == 0 ){
 		Matrix m1;
 		Matrix* lu;
-		int det;
 		nomFonction = "decomposition";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
 			lu = decompositionLU(m1);
@@ -270,7 +267,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m1;
 		couple vp;
 		nomFonction = "approximation_vp";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			m1=mult(transpose(m1),m1);
 			start= clock();
@@ -287,7 +284,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 		Matrix m1;
 		couple* vp;
 		nomFonction = "liste_vp";
-		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
+		for(i=0;i<nbrElem && ((double)(end-start)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
 			start= clock();
 			vp = liste_vp(m1,PRECISION);
@@ -343,7 +340,7 @@ char **separe( char *chaine, const char *separateurs ){
 			tab[m++] = chaine+i;
 		if( m == size )
 		{
-			// si j'atteinds la limite de la taille de mon tableau, je l'agrandis.
+			// si j'atteinds la start de la taille de mon tableau, je l'agrandis.
 			size += 10;
 			tab = realloc( tab, size * sizeof(char*) );
 		}
@@ -950,6 +947,23 @@ void speedtestInter(char **arg){
   return;
 }
 
+couple VPInter(char *arg){
+  char **buffer=separe(arg,",");
+  if(bufflen(buffer)!=1){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return NULL;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    return NULL;
+  }
+  free(buffer);
+  return approximation_vp(arg1->val, PRECISION);
+}
+
 int main(){
   char input[4096];
   int i,tmp;
@@ -964,6 +978,7 @@ int main(){
   Matrix Mattmp;
   E tmpE;
   struct stat info;
+  couple cptmp;
   fstat(0,&info);
   while(1){
     printf("> ");
@@ -1371,11 +1386,25 @@ int main(){
       free(buffer2);
       continue;
     }
-
+    if(strcmp(buffer2[0],"approx_vp")==0){
+      VERIF
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      cptmp=VPInter(buffer2[1]);
+      if(cptmp!=NULL){
+        printf("Valeur propre:\n");
+        printf("%lf\n",cptmp->valp);
+        printf("Vecteur propre:\n");
+        displayMatrix(cptmp->vectp);
+        deleteMatrix(cptmp->vectp);
+        free(cptmp);
+      }
+      free(buffer2[0]);
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
     //On ne sait pas à quoi correspond l'entrée
     printf("%s non reconnu\n",buffer[0]);
-    free(buffer2[0]);
-    free(buffer[0]);
     free(buffer);
     free(buffer2);
   }

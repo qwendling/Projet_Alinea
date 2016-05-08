@@ -309,16 +309,16 @@ couple approximation_vp(const Matrix a, E precision){
 	do{
 		vp=vpnew;
 		if(tmp!=NULL)
-			free(tmp);
+			deleteMatrix(tmp);
 		tmp=u;
 		u=mult(a,u);
 		vpnew = maxComposante(u);
 		tmp2=u;
 		u = multScalaire(u,(1./vpnew));
-		free(tmp2);
+		deleteMatrix(tmp2);
 		}
 	while( abso( vpnew - vp ) > precision || !approxMat(tmp,u,precision) );
-
+	deleteMatrix(tmp);
 	couple cp =malloc(sizeof(struct scouple));
 	cp->valp = vpnew;
 	cp->vectp = u;
@@ -330,7 +330,7 @@ couple* liste_vp(const Matrix a, E precision){
 		fprintf(stderr,"La matrice n'est pas carré\n");
 		return NULL;
 	}
-	int i,n=a->nrows;
+	int i,n=rank(a);
 	couple * tab =malloc( n * sizeof(couple) );
 	Matrix b = copyMatrix(a);
 	couple btransp;
