@@ -1,18 +1,18 @@
-### Projet_Alinea
+# Projet_Alinea
 ##Fonctionnement de l'interpréteur:
-#Donner une valeur à une variable :
+###Donner une valeur à une variable :
 nom_de_la_variable : valeur_de_la_variable
 
-#Création de matrice:
+###Création de matrice:
 nom_de_la_variable : matrix([a,b,c],[d,e,f]...)
 a,b,... peuvent être des variables ou des floats
 
-#Utilisation de fonction:
+###Utilisation de fonction:
 nom_de_la_fonction(arg1,arg2,...)
 Toute les valeurs de retour des fonctions peuvent être misse dans des variables sauf
 pour les fonctions sur les valeurs propres et la décomposition LU
 
-#Liste des fonction:
+###Liste des fonction:
 addition(m1,m2)
 Réalise l'addition des matrices m1 et m2
 
