@@ -305,7 +305,7 @@ couple approximation_vp(const Matrix a, E precision){
 	setElt(u,0,0,1);
 	Matrix tmp=NULL,tmp2;
 	E vp = 1;
-	E vpnew = 0;
+	E vpnew = 1;
 	do{
 		vp=vpnew;
 		if(tmp!=NULL)
@@ -330,7 +330,7 @@ couple* liste_vp(const Matrix a, E precision){
 		fprintf(stderr,"La matrice n'est pas carré\n");
 		return NULL;
 	}
-	int i,n=rank(a);
+	int i,n=a->nrows;
 	couple * tab =malloc( n * sizeof(couple) );
 	Matrix b = copyMatrix(a);
 	couple btransp;
@@ -338,6 +338,7 @@ couple* liste_vp(const Matrix a, E precision){
 		tab[i] = approximation_vp(b,precision);
 		btransp = approximation_vp( transpose(b) , precision);
 		b= soustraction(a , multScalaire( mult(multScalaire( tab[i]->vectp, tab[i]->valp), transpose( btransp->vectp) ), 1/ getElt(mult(transpose(btransp->vectp), tab[i]->vectp),0,0) ));
+		free(btransp->vectp);
 		free(btransp);
 		}
 	deleteMatrix(b);

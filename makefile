@@ -23,7 +23,7 @@ test:$(BPATH)/$(EXE)
 	./bin/minicas
 
 clean :
-	rm $(OPATH)/* $(BPATH)/*
+	rm $(OPATH)/* $(BPATH)/* config.gp data.dat
 # DO NOT DELETE
 
 $(OPATH)/cmd.o: include/cmd.h

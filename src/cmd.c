@@ -19,20 +19,6 @@ int hach(char* name){
   return h%4096;
 }
 
-E scalAleatoire(E min, E max){
-	return ((E)rand()/RAND_MAX)*(max-min)+min;
-	}
-
-
-Matrix aleatoire(int row, int col ,E min, E max){
-  int i,j;
-	Matrix m=newMatrix(row,col);
-	for(i=0;i<m->nrows;i++)
-		for(j=0;j<m->ncol;j++)
-				setElt(m,i,j,((E)rand()/RAND_MAX)*(max-min)+min);
-	return m;
-	}
-
 void deleteListe(couple * liste,int taille){
 	int i;
 	for(i=0;i<taille;i++){
@@ -964,6 +950,38 @@ couple VPInter(char *arg){
   return approximation_vp(arg1->val, PRECISION);
 }
 
+void AllVpInter(char *arg){
+  char **buffer=separe(arg,",");
+  couple* tabcp;
+  if(bufflen(buffer)!=1){
+    fprintf(stderr,"Nombre d'argument invalide\n");
+    free(buffer);
+    return;
+  }
+  VarMatrix arg1=rechercheVarMat(buffer[0]);
+  if(arg1==NULL){
+    fprintf(stderr,"%s n'est pas une matrice\n",buffer[0]);
+    free(buffer);
+    return;
+  }
+  tabcp=liste_vp(arg1->val, PRECISION);
+  if(tabcp==NULL){
+    free(buffer);
+    return;
+  }
+  int i;
+  for(i=0;i<arg1->val->nrows;i++){
+    printf("Valeur propre %d:\n",i);
+    printf("%lf\n",tabcp[i]->valp);
+    printf("Vecteur propre %d:\n",i);
+    displayMatrix(tabcp[i]->vectp);
+    deleteMatrix(tabcp[i]->vectp);
+    free(tabcp[i]);
+  }
+  free(tabcp);
+  free(buffer);
+}
+
 int main(){
   char input[4096];
   int i,tmp;
@@ -1398,6 +1416,15 @@ int main(){
         deleteMatrix(cptmp->vectp);
         free(cptmp);
       }
+      free(buffer2[0]);
+      free(buffer);
+      free(buffer2);
+      continue;
+    }
+    if(strcmp(buffer2[0],"all_vp")==0){
+      VERIF
+      buffer2[1][strlen(buffer2[1])-1]='\0';
+      AllVpInter(buffer2[1]);
       free(buffer2[0]);
       free(buffer);
       free(buffer2);

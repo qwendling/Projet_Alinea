@@ -51,3 +51,15 @@ Matrix copyMatrix(const Matrix m){
    }
 	return cpy;
 }
+Matrix aleatoire(int row, int col ,E min, E max){
+  int i,j;
+	Matrix m=newMatrix(row,col);
+	for(i=0;i<m->nrows;i++)
+		for(j=0;j<m->ncol;j++)
+				setElt(m,i,j,((E)rand()/RAND_MAX)*(max-min)+min);
+	return m;
+	}
+
+E scalAleatoire(E min, E max){
+	return ((E)rand()/RAND_MAX)*(max-min)+min;
+}

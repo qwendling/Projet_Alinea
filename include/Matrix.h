@@ -17,5 +17,7 @@ void deleteMatrix(Matrix m);
 void displayMatrix(Matrix m);
 Matrix Identite(int taille);
 Matrix copyMatrix(const Matrix m);
+Matrix aleatoire(int row, int col ,E min, E max);
+E scalAleatoire(E min, E max);
 
 #endif
