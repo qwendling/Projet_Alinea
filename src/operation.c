@@ -277,7 +277,7 @@ int approxMat(Matrix m1, Matrix m2, E precision){
 	int i,j;
 	for(i=0;i<m1->nrows;i++){
 		for(j=0;j<m1->ncol;j++){
-			if(  abso (getElt(m1,i,j)) - abso(getElt(m2,i,j)) > precision){
+			if(  abso(getElt(m1,i,j) - getElt(m2,i,j)) > precision){
 				return 0;}
 			}
 		}
@@ -297,41 +297,49 @@ E maxComposante(Matrix m){
 	}
 
 couple approximation_vp(const Matrix a, E precision){
-	Matrix u = newMatrix(a->ncol,1);
-	int i;
-	for(i=0;i<u->nrows;i++)
-		setElt(u,i,0,0.1);
+	if(a->nrows!=a->ncol){
+		fprintf(stderr,"La matrice n'est pas carré\n");
+		return NULL;
+	}
+	Matrix u = newMatrix(a->nrows,1);
 	setElt(u,0,0,1);
-	Matrix unew = copyMatrix(u);
+	Matrix tmp=NULL,tmp2;
 	E vp = 1;
-	E vpnew = vp;
+	E vpnew = 0;
 	do{
-		vp = vpnew;
-		u = copyMatrix(unew);
-			//	displayMatrix(u);
-		unew = mult(a,u);
-		//printf("valeur de unew : \n");
-		//displayMatrix(unew);
-		vpnew = maxComposante(unew);
-		unew = multScalaire(unew,(1/vpnew));
+		vp=vpnew;
+		if(tmp!=NULL)
+			free(tmp);
+		tmp=u;
+		u=mult(a,u);
+		vpnew = maxComposante(u);
+		tmp2=u;
+		u = multScalaire(u,(1./vpnew));
+		free(tmp2);
 		}
-	while( abso( vpnew - vp ) > precision || !approxMat(unew,u,precision) );
+	while( abso( vpnew - vp ) > precision || !approxMat(tmp,u,precision) );
 
-	couple cp = (couple) malloc(sizeof(struct scouple));
+	couple cp =malloc(sizeof(struct scouple));
 	cp->valp = vpnew;
-	cp->vectp = unew;
+	cp->vectp = u;
 	return cp;
 	}
 
 couple* liste_vp(const Matrix a, E precision){
+	if(a->nrows!=a->ncol){
+		fprintf(stderr,"La matrice n'est pas carré\n");
+		return NULL;
+	}
 	int i,n=a->nrows;
-	couple * tab = (couple *) malloc( n * sizeof(struct scouple) );
+	couple * tab =malloc( n * sizeof(couple) );
 	Matrix b = copyMatrix(a);
 	couple btransp;
 	for(i=0;i<n;i++){
 		tab[i] = approximation_vp(b,precision);
 		btransp = approximation_vp( transpose(b) , precision);
 		b= soustraction(a , multScalaire( mult(multScalaire( tab[i]->vectp, tab[i]->valp), transpose( btransp->vectp) ), 1/ getElt(mult(transpose(btransp->vectp), tab[i]->vectp),0,0) ));
+		free(btransp);
 		}
+	deleteMatrix(b);
 	return tab;
 	}

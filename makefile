@@ -13,12 +13,15 @@ OPATH = obj
 CPATH = src
 BPATH = bin
 
-$(EXE) : $(OBJFILES)
+$(BPATH)/$(EXE) : $(OBJFILES)
 	$(CC) -o $@ $^
-	mv $@ $(BPATH)
 
 $(OPATH)/%.o : $(CPATH)/%.c
 	$(CC) $(CFLAGS) -c $< $(IFLAGS) -o $@
+
+test:$(BPATH)/$(EXE)
+	./bin/minicas
+
 clean :
 	rm $(OPATH)/* $(BPATH)/*
 # DO NOT DELETE

@@ -20,20 +20,16 @@ int hach(char* name){
 }
 
 E scalAleatoire(E min, E max){
-	E f =((E)rand()/(E)RAND_MAX)*(max-min) +min;
-	return f;
+	return ((E)rand()/RAND_MAX)*(max-min)+min;
 	}
 
 
-Matrix aleatoire(int nrows, int ncol ,E min, E max){
-	Matrix m = newMatrix(nrows, ncol);
-	int i,j;
-	for(i=0; i<m->nrows; i++){
-		for(j=0; j<m->ncol; j++){
-			E f =((E)rand()/(E)RAND_MAX)*(max-min) +min;
-			setElt(m,i,j,f);
-			}
-		}
+Matrix aleatoire(int row, int col ,E min, E max){
+  int i,j;
+	Matrix m=newMatrix(row,col);
+	for(i=0;i<m->nrows;i++)
+		for(j=0;j<m->ncol;j++)
+				setElt(m,i,j,((E)rand()/RAND_MAX)*(max-min)+min);
 	return m;
 	}
 
@@ -57,7 +53,7 @@ double maximum(double * tab, int nbrElem){
 
 void creationGraphique(char* nomFonction){
 	FILE* gp;
-	gp = popen(GNUPLOT_PATH, "w");	
+	gp = popen(GNUPLOT_PATH, "w");
 	fprintf(gp, "load \"config.gp\"\n");
 	fflush(gp);
 	pclose(gp);
@@ -66,29 +62,29 @@ void creationGraphique(char* nomFonction){
 	}
 
 void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max, unsigned int pas,double nbsecondes){
-	
+
 	//verification des entrees
-	
-	if(taille_min>taille_max || pas == 0){
+
+	if(taille_min>taille_max || pas <= 0){
 		fprintf(stderr,"argument invalide ! \n");
 		return;
 		}
-	
-	//initialisation ds variables
+
+	//initialisation des variables
 	FILE* config = fopen ("config.gp","w+");
 	FILE* data= fopen("data.dat","w+");
 	clock_t end, start,limite;
 	char * nomFonction;
-	
-	
+
+
 	int i,nbrElem =  (taille_max-taille_min) / pas +1;
 	// tableau 1d pour les x et y, le y est placé juste après le x correspondant
 	int * xval = calloc( nbrElem,sizeof(int) * nbrElem );
 	double * yval =(double*) calloc(nbrElem,sizeof(double) * nbrElem);
 	double tempsMax;
 	//corps de la fonction
-	
-	if( strcmp(commande,"addition") == 0 ){
+  
+	if(strcmp(commande,"addition")==0){
 		Matrix m1;
 		Matrix m2;
 		Matrix m3;
@@ -105,8 +101,8 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m2);
 			deleteMatrix(m3);
 			}
-		}
-		
+		}else
+
 	if( strcmp(commande,"sub") == 0 ){
 		Matrix m1;
 		Matrix m2;
@@ -124,9 +120,9 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m2);
 			deleteMatrix(m3);
 			}
-		}
-		
-	if( strcmp(commande,"mult") == 0 ){
+		}else
+  
+	if(strcmp(commande,"mult")==0){
 		Matrix m1;
 		Matrix m2;
 		Matrix m3;
@@ -143,7 +139,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m2);
 			deleteMatrix(m3);
 			}
-		}
+		}else
 	if( strcmp(commande,"mult_scal") == 0 ){
 		Matrix m1;
 		Matrix m2;
@@ -160,7 +156,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m1);
 			deleteMatrix(m2);
 			}
-		}
+		}else
 	if( strcmp(commande,"expo") == 0 ){
 		Matrix m1;
 		Matrix m2;
@@ -175,7 +171,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m1);
 			deleteMatrix(m2);
 			}
-		}
+		}else
 	if( strcmp(commande,"transpose") == 0 ){
 		Matrix m1;
 		Matrix m2;
@@ -190,7 +186,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m1);
 			deleteMatrix(m2);
 			}
-		}
+		}else
 	if( strcmp(commande,"determinant") == 0 ){
 		Matrix m1;
 		int det;
@@ -204,7 +200,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
 			deleteMatrix(m1);
 			}
-		}
+		}else
 	if( strcmp(commande,"invert") == 0 ){
 		Matrix m1;
 		Matrix m2;
@@ -219,7 +215,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m1);
 			deleteMatrix(m2);
 			}
-		}
+		}else
 	if( strcmp(commande,"solve") == 0 ){
 		Matrix m1;
 		Matrix m2;
@@ -237,7 +233,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(m2);
 			deleteMatrix(m3);
 			}
-		}
+		}else
 	if( strcmp(commande,"rank") == 0 ){
 		Matrix m1;
 		int det;
@@ -251,8 +247,8 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			yval[i] = (double)((long double)(end-start) / (long double)CLOCKS_PER_SEC);
 			deleteMatrix(m1);
 			}
-		}
-	if( strcmp(commande,"decomposition") == 0 ){
+		}else
+	if( strcmp(commande,"LU") == 0 ){
 		Matrix m1;
 		Matrix* lu;
 		int det;
@@ -269,7 +265,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(lu[1]);
 			free(lu);
 			}
-		}
+		}else
 	if( strcmp(commande,"approximation_vp") == 0 ){
 		Matrix m1;
 		couple vp;
@@ -286,14 +282,13 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			deleteMatrix(vp->vectp);
 			free(vp);
 			}
-		}
+		}else
 	if( strcmp(commande,"liste_vp") == 0 ){
 		Matrix m1;
 		couple* vp;
 		nomFonction = "liste_vp";
 		for(i=0;i<nbrElem && ((double)(end-limite)/CLOCKS_PER_SEC) < nbsecondes && i * pas + taille_min <= taille_max ;i++){
 			m1= aleatoire( i * pas + taille_min, i * pas + taille_min,MIN,MAX);
-			m1=mult(transpose(m1),m1);
 			start= clock();
 			vp = liste_vp(m1,PRECISION);
 			end = clock();
@@ -304,7 +299,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 			}
 		}
 	else{
-		fprintf(stderr,"commande inconnue\n");
+		fprintf(stderr,"%s commande inconnue\n",commande);
 		return;
 		}
 		//epilogue
@@ -315,10 +310,10 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 	//initialisation du fichier de config
 	tempsMax = maximum(yval,nbrElem);
 	fprintf(config,"set terminal png \n set output \" %s.png \" \n set title textcolor rgb \"blue\" \" Temps d'execution en secondes de la fonction %s \\nen fonction de la taille des matrices \" \n set key outside below; set key title \"Légende\"; set key box reverse; set key box lw 2 lc 4\n set yrange [0:%f] \n set xtics textcolor rgb \"green\"; set xlabel textcolor rgb \"green\" \"Taille des matrices\"\nset ytics textcolor rgb \"red\"; set ylabel textcolor rgb \"red\" \"Temps en secondes \"\nplot \"data.dat\" using 1:2 title \"temps(s)/taille des matrices\"with lines ",nomFonction,nomFonction,tempsMax);
-	
+
 	fclose(config);
 	fclose(data);
-	
+
 	creationGraphique(nomFonction);
 	free(xval);
 	free(yval);
@@ -928,6 +923,33 @@ Matrix* LUInter(char* arg){
   return decompositionLU(arg1->val);
 }
 
+void speedtestInter(char **arg){
+  if(bufflen(arg)!=6){
+    fprintf(stderr,"nombre d'arguments invalide\n");
+    return;
+  }
+  if(est_int(arg[2])==0){
+    fprintf(stderr,"%s n'est pas un entier\n",arg[2]);
+    return;
+  }
+  if(est_int(arg[3])==0){
+    fprintf(stderr,"%s n'est pas un entier\n",arg[3]);
+    return;
+  }
+  if(est_int(arg[4])==0){
+    fprintf(stderr,"%s n'est pas un entier\n",arg[4]);
+    return;
+  }
+  if(est_float(arg[5])==0){
+    fprintf(stderr,"%s n'est pas un float\n",arg[5]);
+    return;
+  }
+  arg[1]=SuppSpace(arg[1]);
+  speedtest(arg[1],atoi(arg[2]),atoi(arg[3]),atoi(arg[4]),atof(arg[5]));
+  free(arg[1]);
+  return;
+}
+
 int main(){
   char input[4096];
   int i,tmp;
@@ -937,6 +959,7 @@ int main(){
   }
   char** buffer;
   char **buffer2;
+  char **buffer3;
   Matrix *tabmat;
   Matrix Mattmp;
   E tmpE;
@@ -1181,10 +1204,23 @@ int main(){
     }
     buffer2[0]=SuppSpace(buffer2[0]);
     if(bufflen(buffer2)==1){
+      buffer3=separe(buffer2[0]," ");
+      buffer3[0]=SuppSpace(buffer3[0]);
+      if(strcmp(buffer3[0],"speedtest")==0){
+        speedtestInter(buffer3);
+        free(buffer2[0]);
+        free(buffer);
+        free(buffer2);
+        free(buffer3[0]);
+        free(buffer3);
+        continue;
+      }
       afficheVar(buffer2[0]);
       free(buffer2[0]);
       free(buffer);
       free(buffer2);
+      free(buffer3[0]);
+      free(buffer3);
       continue;
     }
     if(strcmp(buffer2[0],"addition")==0){
@@ -1337,7 +1373,6 @@ int main(){
     }
 
     //On ne sait pas à quoi correspond l'entrée
-    buffer[0]=SuppSpace(buffer[0]);
     printf("%s non reconnu\n",buffer[0]);
     free(buffer2[0]);
     free(buffer[0]);

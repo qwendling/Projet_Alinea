@@ -2,6 +2,9 @@
 #define __CMD_H__
 
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "operation.h"
 
 typedef struct var{
