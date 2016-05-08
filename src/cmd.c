@@ -59,7 +59,7 @@ void speedtest(char * commande, unsigned int taille_min, unsigned int taille_max
 	//initialisation des variables
 	FILE* config = fopen ("config.gp","w+");
 	FILE* data= fopen("data.dat","w+");
-	clock_t end, start;
+	clock_t end=nbsecondes+1, start=0;
 	char * nomFonction;
 
 
@@ -521,7 +521,7 @@ VarMatrix adjVarMat(VarMatrix v,Matrix m,char* key){
 }
 
 void createMatrix(char *key,char* mat){
-  int i;
+  int i,j;
   int size=strlen(mat);
   int nbligne=0,nbcol=0,nbcoltmp,sizetmp;
   if(size==0){
@@ -531,7 +531,10 @@ void createMatrix(char *key,char* mat){
   char** buffer=separe(mat,",");
   int sizebuff=bufflen(buffer);
   for(i=0;i<sizebuff;i++){
-    if(buffer[i][0]=='['){
+    j=0;
+    while(buffer[i][j]==' ')
+      j++;
+    if(buffer[i][j]=='['){
       sizetmp=strlen(buffer[i]);
       if(sizetmp==1){
         fprintf(stderr,"Aucune valeur trouvée pour une case de la matrice \n");
@@ -561,8 +564,8 @@ void createMatrix(char *key,char* mat){
         nbligne++;
         continue;
       }
-      if(est_float(buffer[i]+1)==0 && existeVar(tabVar[hach(buffer[i]+1)],buffer[i]+1)==NULL){
-          fprintf(stderr,"Unexpected %s\n",buffer[i]+1);
+      if(est_float(buffer[i]+j+1)==0 && existeVar(tabVar[hach(buffer[i]+1)],buffer[i]+1)==NULL){
+          fprintf(stderr,"Unexpected %s\n",buffer[i]+j+1);
           free(buffer);
           return;
         }
@@ -613,10 +616,13 @@ void createMatrix(char *key,char* mat){
   Matrix new=newMatrix(nbligne,nbcol);
   int row=0,col;
   for(i=0;i<sizebuff;i++,row++){
-    if(buffer[i][0]=='['){
-		if(est_float(buffer[i]+1)){
+    j=0;
+    while(buffer[i][j]==' ')
+      j++;
+    if(buffer[i][j]=='['){
+		if(est_float(buffer[i]+j+1)){
 		  col=0;
-		  setElt(new,row,col,atof(buffer[i]+1));
+		  setElt(new,row,col,atof(buffer[i]+j+1));
 		  col++;
 		  i++;
 		  for(;col<nbcol;i++,col++){
@@ -625,7 +631,7 @@ void createMatrix(char *key,char* mat){
 		  i--;
 		}else{
 			col=0;
-		  setElt(new,row,col,existeVar(tabVar[hach(buffer[i]+1)],buffer[i]+1)->val);
+		  setElt(new,row,col,existeVar(tabVar[hach(buffer[i]+j+1)],buffer[i]+j+1)->val);
 		  col++;
 		  i++;
 		  for(;col<nbcol;i++,col++){
@@ -1072,143 +1078,145 @@ int main(){
           continue;
         }
         if(strcmp(buffer2[0],"addition")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=addInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer2[0]);
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=addInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+    		  free(buffer2[0]);
           free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"sub")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=subInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer2[0]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"sub")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=subInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+    		  free(buffer2[0]);
+              free(buffer[1]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"mult")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=multInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+    		  free(buffer2[0]);
+              free(buffer[1]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"mult_scal")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=multScalaireInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+    		  free(buffer2[0]);
+              free(buffer[1]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"transpose")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=transposeInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+    		  free(buffer2[0]);
+              free(buffer[1]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"expo")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=expoInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+    		  free(buffer2[0]);
+              free(buffer[1]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"invert")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=inverseInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+          free(buffer2[0]);
           free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"mult")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=multInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer2[0]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"solve")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  Mattmp=solveInter(buffer2[1]);
+    		  if(Mattmp!=NULL){
+    			displayMatrix(Mattmp);
+    			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
+    		  }
+    		  free(buffer2[0]);
           free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"mult_scal")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=multScalaireInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer2[0]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"determinant")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  tmpE=deterInter(buffer2[1],&i);
+    		  if(i==1){
+      			tabVar[hach(buffer[0])]=adjVar(tabVar[hach(buffer[0])],tmpE,buffer[0]);
+      			printf("variable créée\n");
+    		  }
+    		  free(buffer2[0]);
           free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"transpose")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=transposeInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer2[0]);
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
+    		if(strcmp(buffer2[0],"rank")==0){
+    		  VERIF
+    		  buffer2[1][strlen(buffer2[1])-1]='\0';
+    		  tmp=rankInter(buffer2[1],&i);
+    		  if(i==1){
+      			tabVar[hach(buffer[0])]=adjVar(tabVar[hach(buffer[0])],tmpE,buffer[0]);
+      			printf("variable créée\n");
+    		  }
+    		  free(buffer2[0]);
           free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"expo")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=expoInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer2[0]);
-          free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"invert")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=inverseInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"solve")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  Mattmp=solveInter(buffer2[1]);
-		  if(Mattmp!=NULL){
-			displayMatrix(Mattmp);
-			tabVarMat[hach(buffer[0])]=adjVarMat(tabVarMat[hach(buffer[0])],Mattmp,buffer[0]);
-		  }
-		  free(buffer2[0]);
-          free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"determinant")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  tmpE=deterInter(buffer2[1],&i);
-		  if(i==1){
-			tabVar[hach(buffer[0])]=adjVar(tabVar[hach(buffer[0])],tmpE,buffer[0]);
-			printf("variable créée\n");
-		  }
-		  free(buffer2[0]);
-          free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
-		if(strcmp(buffer2[0],"rank")==0){
-		  VERIF
-		  buffer2[1][strlen(buffer2[1])-1]='\0';
-		  tmp=rankInter(buffer2[1],&i);
-		  if(i==1){
-			tabVar[hach(buffer[0])]=adjVar(tabVar[hach(buffer[0])],tmpE,buffer[0]);
-			printf("variable créée\n");
-		  }
-		  free(buffer2[0]);
-          free(buffer[1]);
-		  free(buffer);
-		  free(buffer2);
-		  continue;
-		}
+    		  free(buffer);
+    		  free(buffer2);
+    		  continue;
+    		}
         printf("%s non reconnu\n",buffer2[0]);
         free(buffer2[0]);
         free(buffer[1]);
@@ -1432,6 +1440,7 @@ int main(){
     }
     //On ne sait pas à quoi correspond l'entrée
     printf("%s non reconnu\n",buffer[0]);
+    free(buffer2[0]);
     free(buffer);
     free(buffer2);
   }

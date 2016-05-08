@@ -20,7 +20,10 @@ $(OPATH)/%.o : $(CPATH)/%.c
 	$(CC) $(CFLAGS) -c $< $(IFLAGS) -o $@
 
 test:$(BPATH)/$(EXE)
-	./bin/minicas
+	./bin/minicas < test.txt
+
+test-valgrind:$(BPATH)/$(EXE)
+	valgrind --leak-check=full ./bin/minicas < test.txt
 
 clean :
 	rm $(OPATH)/* $(BPATH)/* config.gp data.dat

@@ -1,0 +1,27 @@
+a:matrix([1,2,3],[4,5,6],[7,8,9])
+b:matrix([3,-2],[1,0])
+c:matrix(dvs,qfdqs)
+d:4.5
+e:8.9
+f:matrix([d],[e])
+mult(a,b)
+multab:mult(a,b)
+multab
+multab:mult(b,f)
+addMat:addition(multab,f)
+subMat:sub(multab,f)
+rank(a)
+invert(a)
+m1:matrix([1,9,3],[4,9,4],[7,2,46])
+rank(m1)
+inv:invert(m1)
+mult(m1,inv)
+trans:transpose(a)
+m2:mult_scal(2,a)
+m3:expo(a,5)
+determinant(a)
+x:solve(b,f)
+mult(b,x)
+f
+speedtest mult 5 100 5 1
+quit

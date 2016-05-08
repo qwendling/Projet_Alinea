@@ -29,7 +29,7 @@ Matrix soustraction(const Matrix m,const Matrix n){
 Matrix mult(const Matrix m,const Matrix n){
 	if(m->ncol != n->nrows){
 		fprintf(stderr,"Arguments invalide pour a multiplication de matrice\n");
-		exit(1);
+		return NULL;
 	}
 	int i,j,k;
 	Matrix mult=newMatrix(m->nrows,n->ncol);
@@ -131,6 +131,7 @@ E determinant(const Matrix m){
 	for(i=0;i<m->nrows;i++){
 		deter*=getElt(D,i,i);
 	}
+	deleteMatrix(D);
 	return deter;
 }
 
@@ -221,6 +222,7 @@ int rank(const Matrix m){
 				break;
 		}
 	}
+	deleteMatrix(D);
 	return r;
 }
 
