@@ -642,9 +642,12 @@ void createMatrix(char *key,char* mat){
     }
   }
   displayMatrix(new);
+  key=SuppSpace(key);
   int h=hach(key);
   tabVarMat[h]=adjVarMat(tabVarMat[h],new,key);
+  printf("OK\n");
   free(buffer);
+  free(key);
 }
 
 Variable rechercheVar(char *key){
